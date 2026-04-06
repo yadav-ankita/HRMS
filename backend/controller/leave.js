@@ -160,56 +160,11 @@ const getLeaveStats = async (req, res, next) => {
     next(error);
   }
 };
-const getTotalLeaveCountToday = async (req, res, next) => {
-  try {
-    const companyId = req.user?.companyId;
-    const today = toDayBoundary(new Date());
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    const count = await Leave.countDocuments({
-      company_id: companyId,
-      startDate: { $lt: tomorrow },
-      endDate: { $gte: today },
-      status: 'approved',
-    });
-    res.status(StatusCodes.OK).json({
-      totalLeaveCountToday: count,
-      message: 'Total leave count for today fetched successfully',
-    });
-  } catch (error) {
-    next(error);
-  }
-}
-const getTodayLeaveEmployees = async (req, res, next) => {
-  try {
-    const companyId = req.user?.companyId;
-    const today = toDayBoundary(new Date());
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    const leaves = await Leave.find({
-      company_id: companyId,
-      startDate: { $lt: tomorrow },
-      endDate: { $gte: today },
-      status: 'approved',
-    }).populate('user_id', 'firstName lastName email loginId');
-
-    res.status(StatusCodes.OK).json({
-      todayLeaveEmployees: leaves.map(leave => leave.user_id),
-      message: 'Employees on leave today fetched successfully',
-    });
-  } catch (error) {
-    next(error);
-  }
-}
 module.exports = {
   applyLeave,
   getMyLeaves,
   getLeaveRequests,
   updateLeaveStatus,
   getLeaveStats,
-  getAllLeaves,
-  getTotalLeaveCountToday,
-  getTodayLeaveEmployees
+  getAllLeaves
 };

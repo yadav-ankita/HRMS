@@ -4,7 +4,8 @@ import axios from 'axios';
 // Set base URL from environment variable or fallback to production
 //const baseURL = import.meta.env.VITE_API_URL || 'https://hrms-backend-ul3t.onrender.com/api/v1';
 //const baseURL='http://localhost:5000/api/v1'
-axios.defaults.baseURL = 'https://hrms-nkr0.onrender.com/';
+//'https://hrms-nkr0.onrender.com/api/v1'
+axios.defaults.baseURL ='http://localhost:5000/api/v1' ;
  //Add request interceptor
 axios.interceptors.request.use(
     (req) => {

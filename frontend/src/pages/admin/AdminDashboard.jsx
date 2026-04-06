@@ -87,8 +87,6 @@ const transformAttendance = (data) => {
     attendanceLoading,
     attendanceError,
     getTodaysAllEmp,
-    todayLeaveCount,
-    todayLeaveCnt,
       todayAbsentCnt, getTodayAbsentCnt
   } = useGlobalContext()
    console.log("today attendance all is",todayAttendanceAll);
@@ -130,7 +128,6 @@ const transformAttendance = (data) => {
       fetchLeaves();
         getAllEmployees();
         getTodaysAllEmp();
-        todayLeaveCount();
         getTodayAbsentCnt(); // ← add this
     }, [])
   //console.log("total Employees",TotalEmployees)
@@ -172,7 +169,7 @@ const transformAttendance = (data) => {
     },
     {
       label: 'On Leave',
-      value: todayLeaveCnt,
+      value: attendanceData.filter(a => a.status === 'On Leave').length,
       icon: FiCalendar,
       color: 'amber',
     },

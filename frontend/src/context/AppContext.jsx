@@ -12,11 +12,10 @@ const AppContextProvider = ({ children }) => {
     const [todayAttendanceAll, setTodayAttendanceAll] = useState([]);
     const [attendanceLoading, setAttendanceLoading] = useState(false);
     const [attendanceError, setAttendanceError] = useState(null);
-    const [todayLeaveCnt, setTodayLeaveCount] = useState(0);
-    const [empData,setEmpData]  = useState(null);
+    const [empData, setEmpData] = useState(null);
     // Add new state
     const [todayAbsentCnt, setTodayAbsentCnt] = useState(0);
-    
+
 
     // register
     const register = async ({ companyName, name, email, phone, password, confirmPassword }) => {
@@ -65,12 +64,12 @@ const AppContextProvider = ({ children }) => {
         setUserData(null);
     }
     const applyForLeave = async (leaveData) => {
-        //console.log("the leave data in context is", leaveData);
+        console.log("the leave data in context is", leaveData);
         try {
             const { data } = await axios.post('/leave/apply',
                 leaveData
             )
-            //console.log("the data from the backend on applyforleave is", data);
+            console.log("the data from the backend on applyforleave is", data);
             return data;
         } catch (error) {
             throw error;
@@ -101,16 +100,13 @@ const AppContextProvider = ({ children }) => {
                 reviewComment
             });
             //console.log("leave update response:", data);
+            // REFRESH DATA:
+        // If it was an admin action, refresh the global today's leave count
+           // await todayLeaveCount(); 
+        
+         // If you have a specific state for balances, refresh that too
+           // await getMyLeaveBalance();
             return data;
-        } catch (error) {
-            throw error;
-        }
-    }
-    const todayLeaveCount = async () => {
-        try {
-            const { data } = await axios.get('/leave/today-leave');
-            //console.log("today leave count data", data);
-            setTodayLeaveCount(data.totalLeaveCountToday)
         } catch (error) {
             throw error;
         }
@@ -230,15 +226,6 @@ const AppContextProvider = ({ children }) => {
             setAttendanceLoading(false);
         }
     };
-    const EmpsTodayLeave=async()=>{
-        try {
-            const { data } = await axios.get('/leave/today-leave-employees');
-            return data.todayLeaveEmployees || [];
-        }
-        catch (error) {
-            throw error;
-        }
-    }
     useEffect(() => {
         const user = localStorage.getItem('user')
         if (user) {
@@ -260,8 +247,6 @@ const AppContextProvider = ({ children }) => {
                     applyForLeave,
                     getAllEmployeesLeaves,
                     getMyLeaves,
-                    todayLeaveCount,
-                    todayLeaveCnt,
                     manageLeaveByAdmin,
                     TotalEmployees,
                     AddEmployee,
@@ -282,9 +267,9 @@ const AppContextProvider = ({ children }) => {
                     attendanceError,
                     getTodayAbsentCnt,
                     todayAbsentCnt,
-                    EmpsTodayLeave,
+                   
                     getMyProfile,
-                    empData
+                    empData,
                 }
             }
         >

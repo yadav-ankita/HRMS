@@ -2,8 +2,10 @@ import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { FiEye, FiEyeOff, FiTrendingUp, FiAlertCircle, FiCheckCircle } from 'react-icons/fi'
 import axios from 'axios'
+import { useGlobalContext } from '../context/AppContext'
 
 const Signup = () => {
+  const {register}=useGlobalContext();
   const navigate = useNavigate()
 
   const [formData, setFormData] = useState({
@@ -48,8 +50,8 @@ const Signup = () => {
     setSuccess('')
     setLoading(true)
     try {
-      
-      setSuccess(res.data.message || 'Company registered successfully!')
+      await register(formData)
+      setSuccess('Company registered successfully!')
       setTimeout(() => navigate('/Login'), 1800)
     } catch (err) {
       setError(err?.response?.data?.msg || err?.response?.data?.message || 'Signup failed. Please try again.')

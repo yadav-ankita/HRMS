@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+     
 const leaveSchema = new mongoose.Schema(
   {
     user_id: {
@@ -18,13 +18,13 @@ const leaveSchema = new mongoose.Schema(
     },
     leaveType: {
       type: String,
-      enum: ['paid', 'sick', 'unpaid'],
+       enum: ['paid', 'sick', 'unpaid', 'casual', 'maternity', 'paternity'],
       required: true,
     },
     reason: {
       type: String,
       trim: true,
-      required: true,
+      //required: true,
     },
     startDate: {
       type: Date,
@@ -36,12 +36,12 @@ const leaveSchema = new mongoose.Schema(
     },
     days: {
       type: Number,
-      required: true,
+      //required: true,
     },
     status: {
       type: String,
-      enum: ['pending', 'approved', 'rejected'],
-      default: 'pending',
+       enum: ['pending', 'approved', 'rejected'],
+       default: 'pending',
     },
     reviewedBy: {
       type: String,

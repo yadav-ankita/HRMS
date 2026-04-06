@@ -3,28 +3,20 @@ import {
   FiTrendingUp, FiGrid, FiUser, FiClock, FiCalendar,
   FiDollarSign, FiLogOut, FiMenu, FiX, FiBell,
   FiCheck, FiXCircle, FiChevronRight, FiEdit2,
-  FiCheckSquare, FiAlertCircle, FiDownload, FiMessageSquare
+  FiCheckSquare, FiAlertCircle, FiDownload, FiMessageSquare, FiRefreshCw
 } from "react-icons/fi";
 import { useGlobalContext } from "../../context/AppContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-const employee = {
-  name: "Arjun Mehta", id: "EMP-2041", role: "Senior Frontend Engineer",
-  dept: "Engineering", email: "arjun.mehta@dayflow.io",
-  phone: "+91 98765 43210", address: "12, Satellite Road, Ahmedabad, Gujarat",
-  joinDate: "Jan 15, 2022", avatar: "AM",
-};
-const leaveBalance = [
-  { label: "Paid Leave", total: 15, used: 3, color: "blue" },
-  { label: "Sick Leave", total: 10, used: 1, color: "green" },
-  { label: "Unpaid Leave", total: 5, used: 2, color: "amber" },
-];
 
 const colorMap = {
-  blue: { bg: "bg-blue-50", val: "text-blue-700", icon: "bg-blue-100 text-blue-600", bar: "bg-blue-500" },
-  green: { bg: "bg-green-50", val: "text-green-700", icon: "bg-green-100 text-green-600", bar: "bg-green-500" },
-  amber: { bg: "bg-amber-50", val: "text-amber-700", icon: "bg-amber-100 text-amber-600", bar: "bg-amber-500" },
-  rose: { bg: "bg-rose-50", val: "text-rose-700", icon: "bg-rose-100 text-rose-600", bar: "bg-rose-500" },
+  blue:   { bg: "bg-blue-50",   val: "text-blue-700",   icon: "bg-blue-100 text-blue-600",   bar: "bg-blue-500" },
+  green:  { bg: "bg-green-50",  val: "text-green-700",  icon: "bg-green-100 text-green-600",  bar: "bg-green-500" },
+  amber:  { bg: "bg-amber-50",  val: "text-amber-700",  icon: "bg-amber-100 text-amber-600",  bar: "bg-amber-500" },
+  rose:   { bg: "bg-rose-50",   val: "text-rose-700",   icon: "bg-rose-100 text-rose-600",   bar: "bg-rose-500" },
+  // ADD THESE TWO:
+  violet: { bg: "bg-violet-50", val: "text-violet-700", icon: "bg-violet-100 text-violet-600", bar: "bg-violet-500" },
+  teal:   { bg: "bg-teal-50",   val: "text-teal-700",   icon: "bg-teal-100 text-teal-600",   bar: "bg-teal-500" },
 };
 
 const statusStyle = {
@@ -66,6 +58,12 @@ const navItems = [
 ];
 
 export default function EmployeeDashboard() {
+  const { applyForLeave, logout, userData, getMyLeaves,
+    EmpStates, getTotalStatusAttendance,
+    todayAttendance, getTodaysAttendance,
+    weeklyAttendance, getWeeklyAttendanceEmp,
+    checkIn: apiCheckIn, checkOut: apiCheckOut, getMyProfile,
+    empData } = useGlobalContext();
   const navigate = useNavigate();
   const [leaveData, setLeaveData] = useState([])
   const [leaveLoading, setLeaveLoading] = useState(true)
@@ -76,16 +74,15 @@ export default function EmployeeDashboard() {
   const [leaveForm, setLeaveForm] = useState({ leaveType: "paid", startDate: "", endDate: "", reason: "" });
   const [submitted, setSubmitted] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [profileForm, setProfileForm] = useState({ phone: employee.phone, address: employee.address });
+  // AFTER — reinitialize when empData loads //new changes
+  const [profileForm, setProfileForm] = useState({ phone: '', address: '' });
+  useEffect(() => {
+    if (empData) setProfileForm({ phone: empData.phone_number || '', address: '' });
+  }, [empData]);
   // Add state for loading/error on check-in
   const [attendanceLoading, setAttendanceLoading] = useState(false);
   const [weeklyLoading, setWeeklyLoading] = useState(true);
-  const { applyForLeave, logout, userData, getMyLeaves,
-    EmpStates, getTotalStatusAttendance,
-    todayAttendance, getTodaysAttendance,
-    weeklyAttendance, getWeeklyAttendanceEmp,
-    checkIn: apiCheckIn, checkOut: apiCheckOut,getMyProfile,
-                    empData } = useGlobalContext();
+
   // ── FIX 1: getAllEmployeesLeaves now returns data.Leaves array ─────────────
   const fetchLeaves = async () => {
     setLeaveLoading(true); setLeaveError('')
@@ -93,6 +90,13 @@ export default function EmployeeDashboard() {
       const data = await getMyLeaves();
       console.log("API response:", data);
       setLeaveData(Array.isArray(data?.Leaves) ? data.Leaves : []);
+      // ← ADD THIS BLOCK right here, inside the same try
+      const colorList = ['blue', 'green', 'amber', 'rose', 'violet', 'teal'];
+      const labels = {
+        paid: 'Paid Leave', sick: 'Sick Leave', casual: 'Casual Leave',
+        unpaid: 'Unpaid Leave', maternity: 'Maternity Leave', paternity: 'Paternity Leave'
+      };
+     
     } catch (err) {
       setLeaveError('Failed to load leave requests.')
       console.error(err)
@@ -189,7 +193,8 @@ export default function EmployeeDashboard() {
       <div className="px-3 py-4 border-t border-slate-100">
         <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-50 mb-2">
           <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold shrink-0">
-            {empData.avatar}
+            {/* {empData.avatar} */}
+            {getInitials(empData)}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-slate-800 truncate">{empData?.name}</p>
@@ -239,9 +244,7 @@ export default function EmployeeDashboard() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             { label: "Attendance", value: `${pct}%`, icon: FiClock, color: "blue" },
-            { label: "Leave Balance", value: "12 days", icon: FiCalendar, color: "green" },
             { label: "Pending Requests", value: pendingLeaves, icon: FiAlertCircle, color: "amber" },
-            { label: "Net Salary", value: "₹1,21,500", icon: FiDollarSign, color: "rose" },
           ].map(({ label, value, icon: Icon, color }) => {
             const c = colorMap[color];
             return (
@@ -354,8 +357,13 @@ export default function EmployeeDashboard() {
                         {getInitials(l.user_id)}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-slate-800 truncate">{getDisplayName(l.user_id)}</p>
-                        <p className="text-[11px] text-slate-400 capitalize">{l.leaveType} leave · {l.days} day{l.days > 1 ? 's' : ''}</p>
+                        {/* new changes */}
+                        <p className="text-sm font-semibold text-slate-800 truncate">
+                          {empData?.name || 'You'}
+                        </p>
+                        <p className="text-[11px] text-slate-400 capitalize">
+                          {l.leaveType} leave · {l.days} day{l.days > 1 ? 's' : ''}
+                        </p>
                       </div>
                       <div className="flex gap-1.5">
                         <button onClick={() => handleLeaveAction(l._id, 'approve')} className="w-7 h-7 rounded-lg bg-green-100 text-green-600 hover:bg-green-200 flex items-center justify-center transition-colors"><FiCheck className="w-3.5 h-3.5" /></button>
@@ -400,15 +408,21 @@ export default function EmployeeDashboard() {
         <div className="flex items-start gap-5 pb-6 mb-6 border-b border-slate-100">
           <div className="w-16 h-16 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center text-xl font-extrabold shrink-0">
             {/* {empData.avatar} */}
-             {((empData.firstName?.[0] || '') + (empData.lastName?.[0] || '')).toUpperCase() || '??'}
+            {((empData.firstName?.[0] || '') + (empData.lastName?.[0] || '')).toUpperCase() || '??'}
           </div>
 
           <div className="flex-1">
             <h2 className="text-lg font-extrabold text-slate-900">{empData?.name}</h2>
             <p className="text-sm text-slate-500 mt-0.5">{empData?.Role} · {empData?.Department}</p>
             <div className="flex items-center gap-2 mt-2">
-              <span className="text-[10px] font-bold bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full">{empData?.id}</span>
-              <span className="text-[10px] text-slate-400">Joined {empData?.joinDate}</span>
+              {/* new changes */}
+              
+              {/* <span className="...">{empData?.loginId}</span>
+              <span className="...">
+                Joined {empData?.joinDate
+                  ? new Date(empData.joinDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })
+                  : '—'}
+              </span> */}
             </div>
           </div>
           <button
@@ -420,13 +434,19 @@ export default function EmployeeDashboard() {
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* new changes */}
           {[
-            { label: "Full Name", value: userData?.username, editable: false },
-            { label: "Email", value: employee.email, editable: false },
-            { label: "Employee ID", value: employee.id, editable: false },
-            { label: "Department", value: employee.dept, editable: false },
+
+            { label: "Full Name", value: empData?.name || '—', editable: false },
+            { label: "Email", value: empData?.email || '—', editable: false },
+            { label: "Employee ID", value: empData?.loginId || '—', editable: false },
+            { label: "Department", value: empData?.Department || '—', editable: false },
             { label: "Phone", value: profileForm.phone, editable: true, key: "phone" },
-            { label: "Address", value: profileForm.address, editable: true, key: "address" },
+            {
+              label: "Joined", value: empData?.joinDate
+                ? new Date(empData.joinDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })
+                : '—', editable: false
+            },
           ].map(f => (
             <div key={f.label} className="bg-slate-50 rounded-xl p-4">
               <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wide mb-1.5">{f.label}</p>
@@ -590,24 +610,7 @@ export default function EmployeeDashboard() {
 
     return (
       <div className="space-y-5">
-        {/* Balance cards */}
-        <div className="grid grid-cols-3 gap-4">
-          {leaveBalance.map(lb => {
-            const c = colorMap[lb.color];
-            const remaining = lb.total - lb.used;
-            const pct = (remaining / lb.total) * 100;
-            return (
-              <div key={lb.label} className={`${c.bg} rounded-2xl p-5`}>
-                <p className="text-xs text-slate-500 font-medium mb-1">{lb.label}</p>
-                <p className={`text-3xl font-extrabold ${c.val} mb-3`}>{remaining}<span className="text-sm font-medium opacity-60"> / {lb.total}</span></p>
-                <div className="h-1.5 bg-white/60 rounded-full overflow-hidden">
-                  <div className={`h-full ${c.bar} rounded-full`} style={{ width: `${pct}%` }} />
-                </div>
-                <p className="text-[10px] text-slate-400 mt-1.5">{lb.used} used · {remaining} remaining</p>
-              </div>
-            );
-          })}
-        </div>
+       
 
         <div className="flex items-center justify-between">
           <div className="flex gap-2">
@@ -695,8 +698,9 @@ export default function EmployeeDashboard() {
                 <span className="absolute top-1 right-1 w-4 h-4 bg-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">{pendingLeaves}</span>
               )}
             </button>
+            {/* // AFTER */}
             <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold">
-              {employee.avatar}
+              {empData ? ((empData.firstName?.[0] || '') + (empData.lastName?.[0] || '')).toUpperCase() : '??'}
             </div>
           </div>
         </header>
@@ -729,7 +733,10 @@ export default function EmployeeDashboard() {
                       className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 bg-white appearance-none">
                       <option value="paid">Paid</option>
                       <option value="sick">Sick</option>
+                      <option value="casual">Casual</option>
                       <option value="unpaid">Unpaid</option>
+                      <option value="maternity">Maternity</option>
+                      <option value="paternity">Paternity</option>
                     </select>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
