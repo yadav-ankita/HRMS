@@ -84,7 +84,8 @@ export default function EmployeeDashboard() {
     EmpStates, getTotalStatusAttendance,
     todayAttendance, getTodaysAttendance,
     weeklyAttendance, getWeeklyAttendanceEmp,
-    checkIn: apiCheckIn, checkOut: apiCheckOut, } = useGlobalContext();
+    checkIn: apiCheckIn, checkOut: apiCheckOut,getMyProfile,
+                    empData } = useGlobalContext();
   // ── FIX 1: getAllEmployeesLeaves now returns data.Leaves array ─────────────
   const fetchLeaves = async () => {
     setLeaveLoading(true); setLeaveError('')
@@ -102,6 +103,7 @@ export default function EmployeeDashboard() {
     getTotalStatusAttendance();
     getTodaysAttendance();
     getWeeklyAttendanceEmp();
+    getMyProfile();
   }, [])
   // Derive checkedIn from real data
   const checkedIn = todayAttendance?.checkIn && !todayAttendance?.checkOut;
@@ -187,10 +189,10 @@ export default function EmployeeDashboard() {
       <div className="px-3 py-4 border-t border-slate-100">
         <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-50 mb-2">
           <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold shrink-0">
-            {employee.avatar}
+            {empData.avatar}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-slate-800 truncate">{userData?.username}</p>
+            <p className="text-sm font-semibold text-slate-800 truncate">{empData?.name}</p>
             <p className="text-[10px] text-slate-400">Employee</p>
           </div>
         </div>
@@ -397,15 +399,16 @@ export default function EmployeeDashboard() {
       <div className="bg-white rounded-2xl border border-slate-100 p-6">
         <div className="flex items-start gap-5 pb-6 mb-6 border-b border-slate-100">
           <div className="w-16 h-16 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center text-xl font-extrabold shrink-0">
-            {employee.avatar}
+            {/* {empData.avatar} */}
+             {((empData.firstName?.[0] || '') + (empData.lastName?.[0] || '')).toUpperCase() || '??'}
           </div>
 
           <div className="flex-1">
-            <h2 className="text-lg font-extrabold text-slate-900">{userData?.username}</h2>
-            <p className="text-sm text-slate-500 mt-0.5">{employee.role} · {employee.dept}</p>
+            <h2 className="text-lg font-extrabold text-slate-900">{empData?.name}</h2>
+            <p className="text-sm text-slate-500 mt-0.5">{empData?.Role} · {empData?.Department}</p>
             <div className="flex items-center gap-2 mt-2">
-              <span className="text-[10px] font-bold bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full">{employee.id}</span>
-              <span className="text-[10px] text-slate-400">Joined {employee.joinDate}</span>
+              <span className="text-[10px] font-bold bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full">{empData?.id}</span>
+              <span className="text-[10px] text-slate-400">Joined {empData?.joinDate}</span>
             </div>
           </div>
           <button

@@ -13,6 +13,7 @@ const AppContextProvider = ({ children }) => {
     const [attendanceLoading, setAttendanceLoading] = useState(false);
     const [attendanceError, setAttendanceError] = useState(null);
     const [todayLeaveCnt, setTodayLeaveCount] = useState(0);
+    const [empData,setEmpData]  = useState(null);
     // Add new state
     const [todayAbsentCnt, setTodayAbsentCnt] = useState(0);
     
@@ -149,6 +150,18 @@ const AppContextProvider = ({ children }) => {
             throw error
         }
     }
+    const getMyProfile = async () => {
+        try {
+            const { data } = await axios.get('/employee/me');
+            console.log("the data of my profile is", data);
+            setEmpData(data.Employee);
+            return data.Employee;
+            //setUserData(data.user);
+            //return data.user;
+        } catch (error) {
+            throw error;
+        }
+    }
     // Add new function
     const getTodayAbsentCnt = async () => {
         try {
@@ -269,7 +282,9 @@ const AppContextProvider = ({ children }) => {
                     attendanceError,
                     getTodayAbsentCnt,
                     todayAbsentCnt,
-                    EmpsTodayLeave
+                    EmpsTodayLeave,
+                    getMyProfile,
+                    empData
                 }
             }
         >
