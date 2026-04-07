@@ -35,7 +35,8 @@ const corsOptions = {
     'https://hrms-system-seven.vercel.app',  // Production frontend
     'http://localhost:5173',                  // Local development (Vite default)
     'http://localhost:3000',
-    'https://hrms-system-management.vercel.app/'                   // Alternative local port
+    'https://hrms-system-management.vercel.app/',
+    'https://hrms-taupe-omega.vercel.app/'                 // Alternative local port
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
