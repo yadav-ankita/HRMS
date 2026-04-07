@@ -30,9 +30,9 @@ const employeeRoute=require('./route/employee')
 const notFound = require('./middleware/notFound')
 const errorHandlerMiddleware = require('./middleware/errorHandler');
 const { authenticationMiddleware } = require('./middleware/authMiddleware');
-app.options('*', cors(corsOptions));
+//app.options('*', cors(corsOptions));
 app.use(cors(corsOptions));
-
+app.options('/{*path}', cors(corsOptions)); 
 
 app.set('trust proxy', 1);
 app.use(
