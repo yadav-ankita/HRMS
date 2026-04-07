@@ -5,30 +5,6 @@ const rateLimiter = require('express-rate-limit');
 
 const express=require('express');
 const app=express();
-
-const connectDb = require('./db/connect');
-
-//routers
-const authRoute=require('./route/auth')
-const attendanceRoute=require('./route/attendance')
-const employeeRoute=require('./route/employee')
- const leaveRoute=require('./route/leave')
-
-//error Handler
-const notFound = require('./middleware/notFound')
-const errorHandlerMiddleware = require('./middleware/errorHandler');
-const { authenticationMiddleware } = require('./middleware/authMiddleware');
-
-
-app.set('trust proxy', 1);
-app.use(
-  rateLimiter({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
-  })
-);
-app.use(express.json())
-
 // Configure CORS for production and development
 const corsOptions = {
   origin: [
@@ -42,6 +18,32 @@ const corsOptions = {
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 };
+const connectDb = require('./db/connect');
+
+//routers
+const authRoute=require('./route/auth')
+const attendanceRoute=require('./route/attendance')
+const employeeRoute=require('./route/employee')
+ const leaveRoute=require('./route/leave')
+
+//error Handler
+const notFound = require('./middleware/notFound')
+const errorHandlerMiddleware = require('./middleware/errorHandler');
+const { authenticationMiddleware } = require('./middleware/authMiddleware');
+app.options('*', cors(corsOptions));
+app.use(cors(corsOptions));
+
+
+app.set('trust proxy', 1);
+app.use(
+  rateLimiter({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+  })
+);
+app.use(express.json())
+
+
 app.options('*', cors(corsOptions));
 app.use(cors(corsOptions))
 
